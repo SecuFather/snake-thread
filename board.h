@@ -3,6 +3,14 @@
 
 #include "global.h"
 
-void draw_board();
+typedef struct {
+	int field[HEIGHT][WIDTH];
+} Board;
 
-#endif H_BOARD_H
+//inicjuje plansze
+void init_board(Board *b);
+
+//rysuje plansze
+void draw_board(Board *b);
+
+#endif

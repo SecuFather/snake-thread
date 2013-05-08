@@ -6,12 +6,10 @@ void init_snake(Snake *s) {
 	s->size = 1;
 	s->steps = 0;
 	s->grow = 0;
-
-	IN_COLOR(draw_board(), BORDER_COLOR);
 }
 
 int is_over(Snake *s, char c) {
-	return s->x[0] == 0 || s->x[0] == WIDTH || s->y[0] == 0 || s->y[0] == HEIGHT ||
+	return s->x[0] == 0 || s->x[0] == WIDTH-1 || s->y[0] == 0 || s->y[0] == HEIGHT-1 ||
 			c == 'q' || c == 'Q';
 }
 
@@ -47,7 +45,10 @@ void draw_snake(Snake *s) {
 void start_snake() {
 	char c = 0;
 	Snake s;
+	Board b;
 
+	init_board(&b);
+	draw_board(&b);
 	init_snake(&s);
 
 	while (!is_over(&s, c)) {

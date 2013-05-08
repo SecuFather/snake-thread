@@ -1,14 +1,25 @@
 #include "board.h"
 
-void draw_board() {
-	int i;	
+void init_board(Board *b) {
+	int i, j;
 
-	for (i=0; i<=WIDTH; ++i) {
-		mvprintw(0, i, " ");
-		mvprintw(HEIGHT, i, " ");
+	for (j=0; j<HEIGHT; ++j) {
+		for (i=0; i<WIDTH; ++i) {
+			if (i == 0 || j == 0 || i == WIDTH-1 || j == HEIGHT-1) {
+				b->field[j][i] = BORDER_COLOR;
+			} else {
+				b->field[j][i] = BG_COLOR;
+			}
+		}
 	}
-	for (i=0; i<=HEIGHT; ++i) {
-		mvprintw(i, 0, " ");
-		mvprintw(i, WIDTH, " ");
+}
+
+void draw_board(Board *b) {
+	int i, j;	
+
+	for (j=0; j<HEIGHT; ++j) {
+		for (i=0; i<WIDTH; ++i) {
+			IN_COLOR(mvprintw(j, i, " "), b->field[j][i]);
+		}
 	}
 }
