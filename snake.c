@@ -2,7 +2,10 @@
 
 void snake_init(Snake *s, Board *b, int id) {
 	s->id = id;
+	s->label[0] = 'a'+id;
+	s->label[1] = 0;
 	board_rand_bg(b, s->x, s->y);
+	s->isize = SNAKE_START_SIZE;
 	s->size = 1;
 	s->steps = 0;
 	s->grow = 0;
@@ -47,6 +50,12 @@ void snake_eat_and_grow(Snake *s, Board *b, Food *f) {
 			s->grow = 1;
 		}
 		s->steps = 0;
+	} else {
+		if (s->isize) {
+			--s->isize;			
+			++s->size;
+			s->grow = 1;
+		}
 	}
 }
 
@@ -83,7 +92,7 @@ void snake_draw(Snake *s, Board *b) {
 	int x = s->x[0];
 	int y = s->y[0];
 
-	IN_COLOR(mvprintw(y, x, " "), SNAKE_COLOR);	
+	IN_COLOR(mvprintw(y, x, s->label), SNAKE_COLOR);	
 }
 
 int snake_check_direction(Snake *s, Board *b, Food *f, char dir) {
@@ -129,17 +138,15 @@ int snake_decide(Snake *s, Board *b, Food *f) {
 		case 0:
 			s->dir = (s->dir+s->turn+4)%4;
 			s->turn = -s->turn;	
-			return 1;
+			return s->alive = ALIVE;
 		case 1:
-			return 1;
+			return s->alive = ALIVE;
 		case 2:
 			s->dir = (s->dir-s->turn+4)%4;
-			return 1;
+			return s->alive = ALIVE;
 	}
-	snake_destroy(s, b);
-	s->alive = DEAD;
-	sleep(1);
-	return 0;
+	
+	return s->alive = DEAD;
 }
 
 void snake_destroy(Snake *s, Board *b) {
@@ -185,10 +192,10 @@ void snake_start() {
 		}
 		
 		refresh();
-		usleep(20000);
+		usleep(50000);
 
 		for (i=0; i<SNAKE_COUNT; ++i) {
-			if (s[i].alive && snake_decide(&s[i], &b, &f)) {
+			if (snake_decide(&s[i], &b, &f)) {
 				snake_eat_and_grow(&s[i], &b, &f);		
 				snake_move(&s[i], &b, &f);
 			}

@@ -5,8 +5,9 @@
 #include "food.h"
 #include "display.h"
 
-#define SNAKE_SIZE	100
-#define SNAKE_COUNT	10
+#define SNAKE_SIZE			100
+#define SNAKE_COUNT			20
+#define SNAKE_START_SIZE	4
 
 #define NORTH		0
 #define EAST		1
@@ -21,9 +22,11 @@
 
 typedef struct {
 	int id;
+	char label[2];
 	int x[SNAKE_SIZE];
 	int y[SNAKE_SIZE];
 	int steps;
+	int isize;
 	int size;
 	int grow;
 	int turn;
