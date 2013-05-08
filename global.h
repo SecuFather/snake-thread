@@ -1,6 +1,7 @@
 #ifndef H_GLOBAL_H
 #define H_GLOBAL_H
 
+#include <pthread.h>
 #include <ncurses.h>
 #include <stdlib.h>
 #include <time.h>

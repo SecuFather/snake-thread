@@ -12,11 +12,7 @@ void food_draw(Food *f) {
 void food_put(Food *f, Board *b) {
 	int x, y;
 
-	do {
-		x = rand()%(WIDTH-2)+1;
-		y = rand()%(HEIGHT-2)+1;
-
-	} while(b->field[y][x] != BG_COLOR);
+	board_rand_bg(b, &x, &y);
 
 	f->x = x;
 	f->y = y;

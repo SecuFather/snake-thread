@@ -30,3 +30,11 @@ void board_draw(Board *b) {
 		}
 	}
 }
+
+void board_rand_bg(Board *b, int *x, int *y) {
+	do {
+		*x = rand()%(WIDTH-2)+1;
+		*y = rand()%(HEIGHT-2)+1;
+
+	} while(b->field[*y][*x] != BG_COLOR);
+}

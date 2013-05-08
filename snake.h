@@ -29,7 +29,7 @@ typedef struct {
 } Snake;
 
 //inicjuje węża
-void snake_init(Snake *s);
+void snake_init(Snake *s, Board *b);
 
 //sprawdza czy nastąpiły warunki do zakończenia programu
 int snake_crash(Snake *s, char c);

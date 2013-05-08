@@ -3,9 +3,11 @@
 
 
 int main() {
-	display_init();	
+	if (display_init()) {
+		return 1;
+	}
 	snake_start();
-	endwin();
-
+	
+	display_finalize();
 	return 0;
 }

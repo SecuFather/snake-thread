@@ -13,4 +13,7 @@ void board_init(Board *b);
 //rysuje plansze
 void board_draw(Board *b);
 
+//losuje pozycję z tłem
+void board_rand_bg(Board *b, int *x, int *y);
+
 #endif

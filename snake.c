@@ -1,8 +1,7 @@
 #include "snake.h"
 
-void snake_init(Snake *s) {
-	s->x[0] = WIDTH/2;
-	s->y[0] = HEIGHT/2;
+void snake_init(Snake *s, Board *b) {
+	board_rand_bg(b, s->x, s->y);
 	s->size = 1;
 	s->steps = 0;
 	s->grow = 0;
@@ -117,8 +116,11 @@ void snake_start() {
 	Board b;
 	Food f;
 
+	if (display_init_key_thread(&c)) {
+		return;
+	}
 	board_init(&b);
-	snake_init(&s);
+	snake_init(&s,  &b);
 	food_init(&f, &b);
 
 	while (!snake_crash(&s, c)) {
@@ -126,7 +128,7 @@ void snake_start() {
 		snake_decide(&s, &b, &f);
 
 		refresh();
-		usleep(20000);
+		usleep(200000);
 
 		snake_eat_and_grow(&s, &b, &f);		
 		snake_move(&s, &b, &f);

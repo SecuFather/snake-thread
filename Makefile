@@ -1,6 +1,7 @@
 CC=gcc
-CFLAGS=-Wall -lncurses -c -g
-LDFLAGS=-lncurses
+LIBS=-pthread -lncurses
+CFLAGS=-Wall -c
+LDFLAGS=
 SOURCES=global.c display.c snake.c main.c board.c food.c
 OBJECTS=$(SOURCES:.c=.o)
 INCLUDES=$(SOURCES:.c=.h)
@@ -9,10 +10,10 @@ EXECUTABLE=snake
 all: $(SOURCES) $(EXECUTABLE) run
 
 $(EXECUTABLE):	$(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CC) $(LDFLAGS) $(LIBS) $(OBJECTS) -o $@
 
 .c.o:	$(INCLUDES)
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $(LIBS) $< -o $@
 
 run:	$(EXECUTABLE)
 	./$(EXECUTABLE)
