@@ -13,6 +13,7 @@
 #define BORDER_COLOR 	3
 #define BAR_COLOR		4
 #define SNAKE_COLOR		5
+#define SNAKE_COLOR2	6
 
 //szerokość ekranu
 #define WIDTH			80

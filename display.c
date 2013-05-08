@@ -6,6 +6,7 @@ void display_color_init() {
 	init_pair(BORDER_COLOR, COLOR_BLACK, COLOR_WHITE);
 	init_pair(BAR_COLOR, COLOR_BLACK, COLOR_CYAN);
 	init_pair(SNAKE_COLOR, COLOR_WHITE, COLOR_GREEN);
+	init_pair(SNAKE_COLOR, COLOR_WHITE, COLOR_MAGENTA);
 }
 
 int display_init() {

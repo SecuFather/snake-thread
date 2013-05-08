@@ -165,26 +165,20 @@ void snake_reverse(Snake *s) {
 void *snake_thread(void *x) {
 	int id = (int)x;
 
-	while (snake_current != id) {
-		usleep(SNAKE_DELAY);
-	}
-
-	snake_init(&s[snake_current], &b, snake_current);
-	if (++snake_current == SNAKE_COUNT) {
-		snake_current = 0;				
-	}
+	pthread_mutex_lock(&mutex);
+	snake_init(&s[id], &b, id);
+	pthread_mutex_unlock(&mutex);
 
 	while(1) {
-		if (snake_current == id) {
-			if (snake_decide(&s[snake_current], &b, &f)) {
-				snake_eat_and_grow(&s[snake_current], &b, &f);		
-				snake_move(&s[snake_current], &b, &f);
-			}
-			refresh();
-			if (++snake_current == SNAKE_COUNT) {
-				snake_current = 0;				
-			}
+		pthread_mutex_lock(&mutex);
+
+		if (snake_decide(&s[id], &b, &f)) {
+			snake_eat_and_grow(&s[id], &b, &f);		
+			snake_move(&s[id], &b, &f);
 		}
+		refresh();
+		pthread_mutex_unlock(&mutex);
+		
 		usleep(SNAKE_DELAY);
 	}	
 	return 0;
@@ -198,6 +192,7 @@ void snake_start() {
 	pthread_t kt, st[SNAKE_COUNT];
 	
 	pthread_create(&kt, NULL, display_getch, (void *) &c);	
+	pthread_mutex_init(&mutex, NULL);
 	
 	snake_current = 0;
 	board_init(&b);

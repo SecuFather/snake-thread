@@ -8,7 +8,7 @@
 #define SNAKE_SIZE			100
 #define SNAKE_COUNT			20
 #define SNAKE_START_SIZE	4
-#define SNAKE_DELAY			100
+#define SNAKE_DELAY			100000
 
 #define NORTH		0
 #define EAST		1
@@ -24,6 +24,7 @@
 typedef struct {
 	int id;
 	char label[2];
+	int team;
 	int x[SNAKE_SIZE];
 	int y[SNAKE_SIZE];
 	int steps;
@@ -38,8 +39,7 @@ Snake s[SNAKE_COUNT];
 Food f;
 Board b;
 int snake_current;
-pthread_mutex_t mutex_init;
-pthread_mutex_t mutex_run;
+pthread_mutex_t mutex;
 
 //inicjuje węża
 void snake_init(Snake *s, Board *b, int id);
