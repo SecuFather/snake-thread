@@ -1,9 +1,9 @@
 CC=gcc
 CFLAGS=-Wall -lncurses -c -g
 LDFLAGS=-lncurses
-SOURCES=display.c snake.c main.c board.c
+SOURCES=display.c snake.c main.c board.c food.c
 OBJECTS=$(SOURCES:.c=.o)
-INCLUDES=$(SOURCES:.c=.h)
+INCLUDES=$(SOURCES:.c=.h) global.h
 EXECUTABLE=snake
 
 all: $(SOURCES) $(EXECUTABLE) run

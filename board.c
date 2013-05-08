@@ -17,6 +17,8 @@ void board_init(Board *b) {
 			}
 		}
 	}
+
+	board_draw(b);
 }
 
 void board_draw(Board *b) {

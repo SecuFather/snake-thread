@@ -2,7 +2,7 @@
 #define H_SNAKE_H
 
 #include "global.h"
-#include "board.h"
+#include "food.h"
 
 #define SNAKE_SIZE	100
 
@@ -35,13 +35,13 @@ void snake_init(Snake *s);
 int snake_crash(Snake *s, char c);
 
 //porusza wężem
-int snake_move(Snake *s, Board *b);
+int snake_move(Snake *s, Board *b, Food *f);
 
 //rysuje węża
 void snake_draw(Snake *s, Board *b);
 
 //wylicza kierunek podążania węża
-void snake_decide(Snake *s, Board *b);
+void snake_decide(Snake *s, Board *b, Food *f);
 
 //startuje węża
 void snake_start();

@@ -15,10 +15,12 @@ int snake_crash(Snake *s, char c) {
 	return c == 'q' || c == 'Q' || !s->alive;
 }
 
-int snake_move(Snake *s, Board *b) {
+int snake_move(Snake *s, Board *b, Food *f) {
 	int i;
 	int tx = s->x[s->size-1];
 	int ty = s->y[s->size-1];
+	int x = s->x[0];
+	int y = s->y[0];
 
 	if (!s->grow) {
 		b->field[ty][tx] = BG_COLOR;
@@ -32,7 +34,8 @@ int snake_move(Snake *s, Board *b) {
 		s->y[i] = s->y[i-1];
 	}
 
-	if (++s->steps % 10 == 0) {
+	if (f->y == y && f->x == x) {
+		food_put(f, b);
 		++s->size;
 		s->grow = 1;
 	}
@@ -51,53 +54,73 @@ void snake_draw(Snake *s, Board *b) {
 	IN_COLOR(mvprintw(y, x, " "), SNAKE_COLOR);	
 }
 
-int snake_check_direction(Snake *s, Board *b, char dir) {
+int snake_check_direction(Snake *s, Board *b, Food *f, char dir) {
 	int x = s->x[0];
 	int y = s->y[0];
 
 	switch (dir) {
 		case NORTH:
-			return b->field[--y][x] == BG_COLOR;
+			return b->field[--y][x] <= BG_COLOR ? (f->y <= y)+1 : 0;
 		case EAST:
-			return b->field[y][++x] == BG_COLOR;
+			return b->field[y][++x] <= BG_COLOR ? (f->x >= x)+1 : 0;
 		case SOUTH:
-			return b->field[++y][x] == BG_COLOR;
+			return b->field[++y][x] <= BG_COLOR ? (f->y >= y)+1 : 0;
 		case WEST:
-			return b->field[y][--x] == BG_COLOR;
+			return b->field[y][--x] <= BG_COLOR ? (f->x <= x)+1 : 0;
 	}
+
 	return 0;
 }
 
-void snake_decide(Snake *s, Board *b) {
-	if (snake_check_direction(s, b, s->dir)) {
-		return;
-	} else {
-		if (snake_check_direction(s, b, (s->dir+s->turn+4)%4)) {
-			s->dir = (s->dir+s->turn+4)%4;
-			s->turn = -s->turn;			
-		} else {
-			if (snake_check_direction(s, b, (s->dir-s->turn+4)%4)) {
-				s->dir = (s->dir-s->turn+4)%4;
-			} else {
-				s->alive = DEAD;
-			}
+int pos_mod(int x, int m) {
+	return (x+m)%m;
+}
+
+void snake_decide(Snake *s, Board *b, Food *f) {
+	int result[4];
+	int best = 3;
+	int i;
+
+	result[0] = snake_check_direction(s, b, f, pos_mod(s->dir+s->turn, 4));
+	result[1] = snake_check_direction(s, b, f, s->dir);
+	result[2] = snake_check_direction(s, b, f, pos_mod(s->dir-s->turn, 4));
+	result[3] = 0;
+
+	for (i=0; i<3; ++i) {
+		if (result[i] > result[3]) {
+			best = i;
+			result[3] = result[i];
 		}
 	}
+
+	switch (best) {
+		case 0:
+			s->dir = (s->dir+s->turn+4)%4;
+			s->turn = -s->turn;	
+			return;
+		case 1:
+			return;
+		case 2:
+			s->dir = (s->dir-s->turn+4)%4;
+			return;
+	}
+	s->alive = DEAD;
 }
 
 void snake_start() {
 	char c = 0;
 	Snake s;
 	Board b;
+	Food f;
 
 	board_init(&b);
-	board_draw(&b);
 	snake_init(&s);
+	food_init(&f, &b);
 
 	while (!snake_crash(&s, c)) {
 		snake_draw(&s, &b);
-		snake_decide(&s, &b);
+		snake_decide(&s, &b, &f);
 		c = getch();
-		snake_move(&s, &b);
+		snake_move(&s, &b, &f);
 	}
 }
