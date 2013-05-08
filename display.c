@@ -16,4 +16,5 @@ void display_init() {
 	curs_set(0);
 	start_color();
 	display_color_init();
+	srand(time(NULL));
 }

@@ -15,29 +15,32 @@ int snake_crash(Snake *s, char c) {
 	return c == 'q' || c == 'Q' || !s->alive;
 }
 
-int snake_move(Snake *s, Board *b, Food *f) {
-	int i;
-	int tx = s->x[s->size-1];
-	int ty = s->y[s->size-1];
+void snake_eat_and_grow(Snake *s, Board *b, Food *f) {
 	int x = s->x[0];
 	int y = s->y[0];
+	int tx = s->x[s->size-1];
+	int ty = s->y[s->size-1];
 
 	if (!s->grow) {
 		b->field[ty][tx] = BG_COLOR;
-		IN_COLOR(mvprintw(ty, tx, " "), BG_COLOR);	
+		IN_COLOR(mvprintw(ty, tx, " "), BG_COLOR);
 	} else {
 		s->grow = 0;
-	}
-
-	for (i=s->size-1; i>0; --i) {
-		s->x[i] = s->x[i-1];
-		s->y[i] = s->y[i-1];
-	}
+	}	
 
 	if (f->y == y && f->x == x) {
 		food_put(f, b);
 		++s->size;
 		s->grow = 1;
+	}
+}
+
+int snake_move(Snake *s, Board *b, Food *f) {
+	int i;
+
+	for (i=s->size-1; i>0; --i) {
+		s->x[i] = s->x[i-1];
+		s->y[i] = s->y[i-1];
 	}
 
 	return  (s->dir == NORTH && s->y[0]--) || 
@@ -70,10 +73,6 @@ int snake_check_direction(Snake *s, Board *b, Food *f, char dir) {
 	}
 
 	return 0;
-}
-
-int pos_mod(int x, int m) {
-	return (x+m)%m;
 }
 
 void snake_decide(Snake *s, Board *b, Food *f) {
@@ -120,7 +119,10 @@ void snake_start() {
 	while (!snake_crash(&s, c)) {
 		snake_draw(&s, &b);
 		snake_decide(&s, &b, &f);
+
 		c = getch();
+
+		snake_eat_and_grow(&s, &b, &f);		
 		snake_move(&s, &b, &f);
 	}
 }

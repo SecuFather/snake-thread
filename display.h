@@ -3,8 +3,10 @@
 
 #include "global.h"
 
+//inicjowanie kolorów dla poszczególnych elementów
 void display_color_init();
 
+//inicjowanie wyświetlania
 void display_init();
 
 #endif

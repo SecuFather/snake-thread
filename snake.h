@@ -34,11 +34,17 @@ void snake_init(Snake *s);
 //sprawdza czy nastąpiły warunki do zakończenia programu
 int snake_crash(Snake *s, char c);
 
+//sprawdza czy wąż natrafił na pożywienie, jeśli tak, rośnie
+void snake_eat_and_grow(Snake *s, Board *b, Food *f);
+
 //porusza wężem
 int snake_move(Snake *s, Board *b, Food *f);
 
 //rysuje węża
 void snake_draw(Snake *s, Board *b);
+
+//wylicza opłacalność danego ruchu od 0 - porażka do 2 - idealny
+int snake_check_direction(Snake *s, Board *b, Food *f, char dir);
 
 //wylicza kierunek podążania węża
 void snake_decide(Snake *s, Board *b, Food *f);
