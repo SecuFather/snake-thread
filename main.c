@@ -1,5 +1,4 @@
 #include "snake.h"
-#include "display.h"
 
 
 int main() {

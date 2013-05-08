@@ -8,8 +8,8 @@ void board_init(Board *b) {
 			if (i == 0 || j == 0 || i == WIDTH-1 || j == HEIGHT-1) {
 				b->field[j][i] = BORDER_COLOR;
 			} else {
-				if ((abs(WIDTH/2-i) > 5 &&  abs(WIDTH/2-i) < 20 && abs(HEIGHT/2-j) > 1 &&  abs(HEIGHT/2-j) < 7) ||
-					(abs(WIDTH/2-i) > 25 &&  abs(WIDTH/2-i) < 30 && abs(HEIGHT/2-j) > 5 &&  abs(HEIGHT/2-j) < 8)){
+				if ((abs(WIDTH/2-i) > 4 &&  abs(WIDTH/2-i) < 8 && abs(HEIGHT/2-j) > 1 &&  abs(HEIGHT/2-j) < 4) ||
+					(abs(WIDTH/2-i) > 25 &&  abs(WIDTH/2-i) < 28 && abs(HEIGHT/2-j) > 5 &&  abs(HEIGHT/2-j) < 8)){
 					b->field[j][i] = BAR_COLOR;
 				} else {
 					b->field[j][i] = BG_COLOR;

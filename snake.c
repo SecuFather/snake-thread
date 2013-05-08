@@ -1,6 +1,7 @@
 #include "snake.h"
 
-void snake_init(Snake *s, Board *b) {
+void snake_init(Snake *s, Board *b, int id) {
+	s->id = id;
 	board_rand_bg(b, s->x, s->y);
 	s->size = 1;
 	s->steps = 0;
@@ -11,12 +12,19 @@ void snake_init(Snake *s, Board *b) {
 }
 
 int snake_crash(Snake *s, char c, pthread_t *kt) {
+	int i;
+
 	if (c == 'q' || c == 'Q') {
 		pthread_join(*kt, 0);
 		return 1;
 	}
 
-	return !s->alive;
+	for (i=0; i<SNAKE_COUNT; ++i) {
+		if (s[i].alive) {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 void snake_eat_and_grow(Snake *s, Board *b, Food *f) {
@@ -34,31 +42,47 @@ void snake_eat_and_grow(Snake *s, Board *b, Food *f) {
 
 	if (f->y == y && f->x == x) {
 		food_put(f, b);
-		++s->size;
-		s->grow = 1;
+		if (s->size < SNAKE_SIZE) {
+			++s->size;
+			s->grow = 1;
+		}
 		s->steps = 0;
 	}
 }
 
-int snake_move(Snake *s, Board *b, Food *f) {
+void snake_move(Snake *s, Board *b, Food *f) {
 	int i;
+	int x = s->x[0];
+	int y = s->y[0];
 
 	for (i=s->size-1; i>0; --i) {
 		s->x[i] = s->x[i-1];
 		s->y[i] = s->y[i-1];
 	}
 
-	return  (s->dir == NORTH && s->y[0]--) || 
-			(s->dir == SOUTH && s->y[0]++) || 
-			(s->dir == WEST && s->x[0]--) || 
-			(s->dir == EAST && s->x[0]++);
+
+	switch (s->dir) {
+		case NORTH:
+			y = --s->y[0];
+			break;
+		case SOUTH:
+			y = ++s->y[0];
+			break;
+		case WEST:
+			x = --s->x[0];
+			break;
+		case EAST:
+			x = ++s->x[0];
+			break;
+	}
+	
+	b->field[y][x] = SNAKE_COLOR;
 }
 
 void snake_draw(Snake *s, Board *b) {
 	int x = s->x[0];
 	int y = s->y[0];
 
-	b->field[y][x] = SNAKE_COLOR;
 	IN_COLOR(mvprintw(y, x, " "), SNAKE_COLOR);	
 }
 
@@ -80,7 +104,7 @@ int snake_check_direction(Snake *s, Board *b, Food *f, char dir) {
 	return 0;
 }
 
-void snake_decide(Snake *s, Board *b, Food *f) {
+int snake_decide(Snake *s, Board *b, Food *f) {
 	int result[4];
 	int best = 3;
 	int i;
@@ -105,19 +129,38 @@ void snake_decide(Snake *s, Board *b, Food *f) {
 		case 0:
 			s->dir = (s->dir+s->turn+4)%4;
 			s->turn = -s->turn;	
-			return;
+			return 1;
 		case 1:
-			return;
+			return 1;
 		case 2:
 			s->dir = (s->dir-s->turn+4)%4;
-			return;
+			return 1;
 	}
+	snake_destroy(s, b);
 	s->alive = DEAD;
+	sleep(1);
+	return 0;
+}
+
+void snake_destroy(Snake *s, Board *b) {
+	int i;
+	int x;
+	int y;
+
+	for (i=0; i<s->size; ++i) {
+		x = s->x[i];
+		y = s->y[i];
+
+		b->field[y][x] = BG_COLOR;
+		IN_COLOR(mvprintw(y, x, " "), BG_COLOR);
+	}
 }
 
 void snake_start() {
 	char c = 0;
-	Snake s;
+	int i;
+
+	Snake s[SNAKE_COUNT];
 	Board b;
 	Food f;
 	pthread_t kt;
@@ -125,17 +168,30 @@ void snake_start() {
 	display_init_key_thread(&kt, &c);	
 	
 	board_init(&b);
-	snake_init(&s,  &b);
+
+	for (i=0; i<SNAKE_COUNT; ++i) {
+		snake_init(&s[i],  &b, i);
+	}
 	food_init(&f, &b);
 
-	while (!snake_crash(&s, c, &kt)) {
-		snake_draw(&s, &b);
-		snake_decide(&s, &b, &f);
-
+	while (1) {
+		if (snake_crash(s, c, &kt)) {
+			break;
+		}
+		for (i=0; i<SNAKE_COUNT; ++i) {
+			if (s[i].alive) {
+				snake_draw(&s[i], &b);
+			}
+		}
+		
 		refresh();
 		usleep(20000);
 
-		snake_eat_and_grow(&s, &b, &f);		
-		snake_move(&s, &b, &f);
+		for (i=0; i<SNAKE_COUNT; ++i) {
+			if (s[i].alive && snake_decide(&s[i], &b, &f)) {
+				snake_eat_and_grow(&s[i], &b, &f);		
+				snake_move(&s[i], &b, &f);
+			}
+		}
 	}
 }
