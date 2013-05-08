@@ -18,13 +18,13 @@ typedef struct {
 void init_snake(Snake *s);
 
 //sprawdza czy nastąpiły warunki do zakończenia programu
-int is_over(Snake *s, char c);
+int is_over(Snake *s, Board *b, char c);
 
 //porusza wężem
-int move_snake(Snake *s, char c);
+int move_snake(Snake *s, Board *b, char c);
 
 //rysuje węża
-void draw_snake(Snake *s);
+void draw_snake(Snake *s, Board *b);
 
 //startuje węża
 void start_snake();

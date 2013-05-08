@@ -8,16 +8,19 @@ void init_snake(Snake *s) {
 	s->grow = 0;
 }
 
-int is_over(Snake *s, char c) {
-	return s->x[0] == 0 || s->x[0] == WIDTH-1 || s->y[0] == 0 || s->y[0] == HEIGHT-1 ||
+int is_over(Snake *s, Board *b, char c) {
+	return b->field[s->y[0]][s->x[0]] != BG_COLOR ||
 			c == 'q' || c == 'Q';
 }
 
-int move_snake(Snake *s, char c) {
+int move_snake(Snake *s, Board *b, char c) {
 	int i;
+	int tx = s->x[s->size-1];
+	int ty = s->y[s->size-1];
 
 	if (!s->grow) {
-		IN_COLOR(mvprintw(s->y[s->size-1], s->x[s->size-1], " "), BG_COLOR);	
+		b->field[ty][tx] = BG_COLOR;
+		IN_COLOR(mvprintw(ty, tx, " "), BG_COLOR);	
 	} else {
 		s->grow = 0;
 	}
@@ -38,8 +41,12 @@ int move_snake(Snake *s, char c) {
 			(c == 'd' && s->x[0]++);
 }
 
-void draw_snake(Snake *s) {
-	IN_COLOR(mvprintw(s->y[0], s->x[0], " "), SNAKE_COLOR);	
+void draw_snake(Snake *s, Board *b) {
+	int x = s->x[0];
+	int y = s->y[0];
+
+	b->field[y][x] = SNAKE_COLOR;
+	IN_COLOR(mvprintw(y, x, " "), SNAKE_COLOR);	
 }
 
 void start_snake() {
@@ -51,9 +58,9 @@ void start_snake() {
 	draw_board(&b);
 	init_snake(&s);
 
-	while (!is_over(&s, c)) {
-		draw_snake(&s);
+	while (!is_over(&s, &b, c)) {
+		draw_snake(&s, &b);
 		c = getch();
-		move_snake(&s, c);
+		move_snake(&s, &b, c);
 	}
 }
