@@ -3,8 +3,8 @@
 
 #include "global.h"
 
-void init_colors();
+void display_color_init();
 
-void init_display();
+void display_init();
 
 #endif

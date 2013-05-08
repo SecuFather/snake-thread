@@ -8,9 +8,9 @@ typedef struct {
 } Board;
 
 //inicjuje plansze
-void init_board(Board *b);
+void board_init(Board *b);
 
 //rysuje plansze
-void draw_board(Board *b);
+void board_draw(Board *b);
 
 #endif

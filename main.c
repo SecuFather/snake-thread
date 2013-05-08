@@ -3,10 +3,8 @@
 
 
 int main() {
-	init_display();
-	
-	start_snake();
-
+	display_init();	
+	snake_start();
 	endwin();
 
 	return 0;

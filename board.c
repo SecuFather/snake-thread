@@ -1,6 +1,6 @@
 #include "board.h"
 
-void init_board(Board *b) {
+void board_init(Board *b) {
 	int i, j;
 
 	for (j=0; j<HEIGHT; ++j) {
@@ -14,7 +14,7 @@ void init_board(Board *b) {
 	}
 }
 
-void draw_board(Board *b) {
+void board_draw(Board *b) {
 	int i, j;	
 
 	for (j=0; j<HEIGHT; ++j) {
