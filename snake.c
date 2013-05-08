@@ -32,6 +32,7 @@ void snake_eat_and_grow(Snake *s, Board *b, Food *f) {
 		food_put(f, b);
 		++s->size;
 		s->grow = 1;
+		s->steps = 0;
 	}
 }
 
@@ -80,6 +81,10 @@ void snake_decide(Snake *s, Board *b, Food *f) {
 	int best = 3;
 	int i;
 
+	if (++s->steps > (WIDTH+HEIGHT)/2 && rand_shot(10)) {
+		s->turn = -s->turn;	
+	}
+
 	result[0] = snake_check_direction(s, b, f, pos_mod(s->dir+s->turn, 4));
 	result[1] = snake_check_direction(s, b, f, s->dir);
 	result[2] = snake_check_direction(s, b, f, pos_mod(s->dir-s->turn, 4));
@@ -120,7 +125,8 @@ void snake_start() {
 		snake_draw(&s, &b);
 		snake_decide(&s, &b, &f);
 
-		c = getch();
+		refresh();
+		usleep(20000);
 
 		snake_eat_and_grow(&s, &b, &f);		
 		snake_move(&s, &b, &f);
