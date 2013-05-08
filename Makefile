@@ -4,7 +4,6 @@ CFLAGS=-Wall -c -g
 LDFLAGS=
 SOURCES=global.c display.c snake.c main.c board.c food.c
 OBJECTS=$(SOURCES:.c=.o)
-INCLUDES=$(SOURCES:.c=.h)
 EXECUTABLE=snake
 
 all: $(SOURCES) $(EXECUTABLE) run
@@ -12,7 +11,7 @@ all: $(SOURCES) $(EXECUTABLE) run
 $(EXECUTABLE):	$(OBJECTS)
 	$(CC) $(LDFLAGS) $(LIBS) $(OBJECTS) -o $@
 
-.c.o:	$(INCLUDES)
+.c.o:
 	$(CC) $(CFLAGS) $(LIBS) $< -o $@
 
 run:	$(EXECUTABLE)

@@ -162,35 +162,60 @@ void snake_reverse(Snake *s) {
 	}
 }
 
+void *snake_thread(void *x) {
+	int id = *((int*)x);
+
+	while (current != id) {
+		usleep(SYS_DELAY);
+	}
+
+	snake_init(&s[current], &b, current);
+	if (++current == SNAKE_COUNT) {
+		refresh();			
+		current = 0;				
+	}
+
+	while(1) {
+		if (current == id) {
+			if (snake_decide(&s[current], &b, &f)) {
+				snake_eat_and_grow(&s[current], &b, &f);		
+				snake_move(&s[current], &b, &f);
+			}
+			if (++current == SNAKE_COUNT) {
+				refresh();
+#ifdef SNAKE_DELAY
+				//usleep(SNAKE_DELAY);
+#endif
+				current = 0;				
+			}
+		}
+		usleep(SYS_DELAY);
+	}	
+	return 0;
+}
+
+void snake_start_thread(pthread_t *st, int id) {
+	pthread_create(st, NULL, snake_thread, (void *) &id);
+}	
+
 void snake_start() {
 	char c = 0;
 	int i;
 
-	Snake s[SNAKE_COUNT];
-	Board b;
-	Food f;
-	pthread_t kt;
+	pthread_t kt, st[SNAKE_COUNT];
 	
 	display_init_key_thread(&kt, &c);	
 	
+	current = 0;
 	board_init(&b);
-
-	for (i=0; i<SNAKE_COUNT; ++i) {
-		snake_init(&s[i],  &b, i);
-	}
 	food_init(&f, &b);
 
-	while (!snake_crash(s, c, &kt)) {		
-		for (i=0; i<SNAKE_COUNT; ++i) {
-			if (snake_decide(&s[i], &b, &f)) {
-				snake_eat_and_grow(&s[i], &b, &f);		
-				snake_move(&s[i], &b, &f);
-			}
-		}
-		refresh();
-
-#ifdef SNAKE_DELAY
-		usleep(SNAKE_DELAY);
-#endif
+	for (i=0; i<SNAKE_COUNT; ++i) {
+		snake_start_thread(&st[i], i);
 	}
+
+	while (!snake_crash(s, c, &kt)) {		
+		usleep(SYS_DELAY);
+	}
+
 }

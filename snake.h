@@ -6,9 +6,10 @@
 #include "display.h"
 
 #define SNAKE_SIZE			100
-#define SNAKE_COUNT			20
+#define SNAKE_COUNT			10
 #define SNAKE_START_SIZE	4
 #define SNAKE_DELAY			100000
+#define SYS_DELAY			1000
 
 #define NORTH		0
 #define EAST		1
@@ -34,6 +35,11 @@ typedef struct {
 	char dir;
 } Snake;
 
+Snake s[SNAKE_COUNT];
+Food f;
+Board b;
+int current;
+
 //inicjuje węża
 void snake_init(Snake *s, Board *b, int id);
 
@@ -57,6 +63,9 @@ void snake_destroy(Snake *s, Board *b);
 
 //obraca węża
 void snake_reverse(Snake *s);
+
+//wątek węża
+void *snake_thread(void *id);
 
 //startuje węża
 void snake_start();
