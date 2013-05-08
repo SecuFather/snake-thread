@@ -32,7 +32,7 @@ typedef struct {
 void snake_init(Snake *s, Board *b);
 
 //sprawdza czy nastąpiły warunki do zakończenia programu
-int snake_crash(Snake *s, char c);
+int snake_crash(Snake *s, char c, pthread_t *kt);
 
 //sprawdza czy wąż natrafił na pożywienie, jeśli tak, rośnie
 void snake_eat_and_grow(Snake *s, Board *b, Food *f);

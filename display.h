@@ -10,7 +10,7 @@ void display_color_init();
 int display_init();
 
 //inicjuje wątek pobierania danych z klawiatury
-int display_init_key_thread(char *c);
+int display_init_key_thread(pthread_t *kt, char *c);
 
 //pobiera w tle pobrane znaki z klawiatury
 void *display_getch(void *c);

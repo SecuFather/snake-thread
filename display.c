@@ -21,13 +21,8 @@ int display_init() {
 	return 0;
 }
 
-int display_init_key_thread(char *c) {
-	pthread_t key_thread;	
-
-	if (pthread_create(&key_thread, NULL, display_getch, (void *) c)) {
-		return 0;
-	}
-	return 0;
+int display_init_key_thread(pthread_t *kt, char *c) {
+	return pthread_create(kt, NULL, display_getch, (void *) c);
 }
 
 void *display_getch(void *c) {
@@ -36,7 +31,7 @@ void *display_getch(void *c) {
 	do {
 		tmp = getch();
 		*((char*)c) = tmp;
-	} while (tmp == 'q' || tmp == 'Q');
+	} while (tmp != 'q' && tmp != 'Q');
 
 	pthread_exit(0);
 }

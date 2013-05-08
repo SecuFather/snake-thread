@@ -10,8 +10,13 @@ void snake_init(Snake *s, Board *b) {
 	s->dir  = WEST;
 }
 
-int snake_crash(Snake *s, char c) {
-	return c == 'q' || c == 'Q' || !s->alive;
+int snake_crash(Snake *s, char c, pthread_t *kt) {
+	if (c == 'q' || c == 'Q') {
+		pthread_join(*kt, 0);
+		return 1;
+	}
+
+	return !s->alive;
 }
 
 void snake_eat_and_grow(Snake *s, Board *b, Food *f) {
@@ -115,20 +120,20 @@ void snake_start() {
 	Snake s;
 	Board b;
 	Food f;
-
-	if (display_init_key_thread(&c)) {
-		return;
-	}
+	pthread_t kt;
+	
+	display_init_key_thread(&kt, &c);	
+	
 	board_init(&b);
 	snake_init(&s,  &b);
 	food_init(&f, &b);
 
-	while (!snake_crash(&s, c)) {
+	while (!snake_crash(&s, c, &kt)) {
 		snake_draw(&s, &b);
 		snake_decide(&s, &b, &f);
 
 		refresh();
-		usleep(200000);
+		usleep(20000);
 
 		snake_eat_and_grow(&s, &b, &f);		
 		snake_move(&s, &b, &f);
