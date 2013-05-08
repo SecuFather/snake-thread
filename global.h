@@ -28,4 +28,7 @@ int pos_mod(int x, int m);
 //zwraca 1 z prawdopodobieństwem 1/p
 int rand_shot(int p);
 
+//zamienia miejscami
+void swap(int *x, int *y);
+
 #endif

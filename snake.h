@@ -58,6 +58,9 @@ int snake_decide(Snake *s, Board *b, Food *f);
 //niszczy węża
 void snake_destroy(Snake *s, Board *b);
 
+//obraca węża
+void snake_reverse(Snake *s);
+
 //startuje węża
 void snake_start();
 
