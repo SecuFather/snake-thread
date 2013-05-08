@@ -163,39 +163,35 @@ void snake_reverse(Snake *s) {
 }
 
 void *snake_thread(void *x) {
-	int id = *((int*)x);
+	int id = (int)x;
 
-	while (current != id) {
-		usleep(SYS_DELAY);
+	while (snake_current != id) {
+		usleep(SNAKE_DELAY);
 	}
 
-	snake_init(&s[current], &b, current);
-	if (++current == SNAKE_COUNT) {
-		refresh();			
-		current = 0;				
+	snake_init(&s[snake_current], &b, snake_current);
+	if (++snake_current == SNAKE_COUNT) {
+		snake_current = 0;				
 	}
 
 	while(1) {
-		if (current == id) {
-			if (snake_decide(&s[current], &b, &f)) {
-				snake_eat_and_grow(&s[current], &b, &f);		
-				snake_move(&s[current], &b, &f);
+		if (snake_current == id) {
+			if (snake_decide(&s[snake_current], &b, &f)) {
+				snake_eat_and_grow(&s[snake_current], &b, &f);		
+				snake_move(&s[snake_current], &b, &f);
 			}
-			if (++current == SNAKE_COUNT) {
-				refresh();
-#ifdef SNAKE_DELAY
-				//usleep(SNAKE_DELAY);
-#endif
-				current = 0;				
+			refresh();
+			if (++snake_current == SNAKE_COUNT) {
+				usleep(SNAKE_DELAY);
+				snake_current = 0;				
 			}
 		}
-		usleep(SYS_DELAY);
 	}	
 	return 0;
 }
 
 void snake_start_thread(pthread_t *st, int id) {
-	pthread_create(st, NULL, snake_thread, (void *) &id);
+	pthread_create(st, NULL, snake_thread, (void *) id);
 }	
 
 void snake_start() {
@@ -206,7 +202,7 @@ void snake_start() {
 	
 	display_init_key_thread(&kt, &c);	
 	
-	current = 0;
+	snake_current = 0;
 	board_init(&b);
 	food_init(&f, &b);
 
@@ -215,7 +211,7 @@ void snake_start() {
 	}
 
 	while (!snake_crash(s, c, &kt)) {		
-		usleep(SYS_DELAY);
+		usleep(SNAKE_DELAY);
 	}
 
 }
