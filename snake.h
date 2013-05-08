@@ -8,6 +8,7 @@
 #define SNAKE_SIZE			100
 #define SNAKE_COUNT			20
 #define SNAKE_START_SIZE	4
+#define SNAKE_DELAY			100000
 
 #define NORTH		0
 #define EAST		1
@@ -28,7 +29,6 @@ typedef struct {
 	int steps;
 	int isize;
 	int size;
-	int grow;
 	int turn;
 	int alive;
 	char dir;
@@ -45,9 +45,6 @@ void snake_eat_and_grow(Snake *s, Board *b, Food *f);
 
 //porusza wężem
 void snake_move(Snake *s, Board *b, Food *f);
-
-//rysuje węża
-void snake_draw(Snake *s, Board *b);
 
 //wylicza opłacalność danego ruchu od 0 - porażka do 2 - idealny
 int snake_check_direction(Snake *s, Board *b, Food *f, char dir);

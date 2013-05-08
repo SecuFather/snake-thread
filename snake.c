@@ -8,7 +8,6 @@ void snake_init(Snake *s, Board *b, int id) {
 	s->isize = SNAKE_START_SIZE;
 	s->size = 1;
 	s->steps = 0;
-	s->grow = 0;
 	s->turn = RIGHT;
 	s->alive = ALIVE;
 	s->dir  = WEST;
@@ -29,25 +28,19 @@ void snake_eat_and_grow(Snake *s, Board *b, Food *f) {
 	int tx = s->x[s->size-1];
 	int ty = s->y[s->size-1];
 
-	if (!s->grow) {
-		b->field[ty][tx] = BG_COLOR;
-		IN_COLOR(mvprintw(ty, tx, " "), BG_COLOR);
-	} else {
-		s->grow = 0;
-	}	
+	b->field[ty][tx] = BG_COLOR;
+	IN_COLOR(mvprintw(ty, tx, " "), BG_COLOR);
 
 	if (f->y == y && f->x == x) {
 		food_put(f, b);
 		if (s->size < SNAKE_SIZE) {
 			++s->size;
-			s->grow = 1;
 		}
 		s->steps = 0;
 	} else {
 		if (s->isize) {
 			--s->isize;			
 			++s->size;
-			s->grow = 1;
 		}
 	}
 }
@@ -79,14 +72,9 @@ void snake_move(Snake *s, Board *b, Food *f) {
 	}
 	
 	b->field[y][x] = SNAKE_COLOR;
+	IN_COLOR(mvprintw(y, x, s->label), SNAKE_COLOR);
 }
 
-void snake_draw(Snake *s, Board *b) {
-	int x = s->x[0];
-	int y = s->y[0];
-
-	IN_COLOR(mvprintw(y, x, s->label), SNAKE_COLOR);	
-}
 
 int snake_check_direction(Snake *s, Board *b, Food *f, char dir) {
 	int x = s->x[0];
@@ -113,7 +101,8 @@ int snake_decide(Snake *s, Board *b, Food *f) {
 
 	if (++s->steps > (WIDTH+HEIGHT)*SNAKE_COUNT/2) {
 		s->turn = -s->turn;	
-		if (s->size > 1 && --s->size) {
+		if (s->size > 1) {
+			--s->size;
 			b->field[s->y[s->size]][s->x[s->size]] = BG_COLOR;
 			IN_COLOR(mvprintw(s->y[s->size], s->x[s->size], " "), BG_COLOR);
 			s->steps = 0;
@@ -162,7 +151,7 @@ void snake_destroy(Snake *s, Board *b) {
 }
 
 void snake_reverse(Snake *s) {
-	int t, i, i2;
+	int i, i2;
 	int n = s->size;
 
 	for (i=0; i<n/2; ++i) {
@@ -191,24 +180,17 @@ void snake_start() {
 	}
 	food_init(&f, &b);
 
-	while (1) {
-		if (snake_crash(s, c, &kt)) {
-			break;
-		}
-		for (i=0; i<SNAKE_COUNT; ++i) {
-			if (s[i].alive) {
-				snake_draw(&s[i], &b);
-			}
-		}
-		
-		refresh();
-		usleep(50000);
-
+	while (!snake_crash(s, c, &kt)) {		
 		for (i=0; i<SNAKE_COUNT; ++i) {
 			if (snake_decide(&s[i], &b, &f)) {
 				snake_eat_and_grow(&s[i], &b, &f);		
 				snake_move(&s[i], &b, &f);
 			}
 		}
+		refresh();
+
+#ifdef SNAKE_DELAY
+		usleep(SNAKE_DELAY);
+#endif
 	}
 }

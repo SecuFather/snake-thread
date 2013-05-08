@@ -1,6 +1,6 @@
 CC=gcc
 LIBS=-pthread -lncurses
-CFLAGS=-Wall -c
+CFLAGS=-Wall -c -g
 LDFLAGS=
 SOURCES=global.c display.c snake.c main.c board.c food.c
 OBJECTS=$(SOURCES:.c=.o)
