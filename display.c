@@ -25,11 +25,12 @@ int display_init_key_thread(pthread_t *kt, char *c) {
 	return pthread_create(kt, NULL, display_getch, (void *) c);
 }
 
+
 void *display_getch(void *c) {
 	char tmp;
 
 	do {
-		tmp = getch();
+		read(0, &tmp, 1);
 		*((char*)c) = tmp;
 	} while (tmp != 'q' && tmp != 'Q');
 
