@@ -182,17 +182,14 @@ void *snake_thread(void *x) {
 			}
 			refresh();
 			if (++snake_current == SNAKE_COUNT) {
-				usleep(SNAKE_DELAY);
 				snake_current = 0;				
 			}
 		}
+		usleep(SNAKE_DELAY);
 	}	
 	return 0;
 }
 
-void snake_start_thread(pthread_t *st, int id) {
-	pthread_create(st, NULL, snake_thread, (void *) id);
-}	
 
 void snake_start() {
 	char c = 0;
@@ -200,18 +197,23 @@ void snake_start() {
 
 	pthread_t kt, st[SNAKE_COUNT];
 	
-	display_init_key_thread(&kt, &c);	
+	pthread_create(&kt, NULL, display_getch, (void *) &c);	
 	
 	snake_current = 0;
 	board_init(&b);
 	food_init(&f, &b);
 
 	for (i=0; i<SNAKE_COUNT; ++i) {
-		snake_start_thread(&st[i], i);
+		pthread_create(&st[i], NULL, snake_thread, (void *) i);
 	}
 
 	while (!snake_crash(s, c, &kt)) {		
 		usleep(SNAKE_DELAY);
+	}
+
+	for (i=0; i<SNAKE_COUNT; ++i) {
+		pthread_cancel(st[i]);
+		pthread_join(st[i], 0);
 	}
 
 }

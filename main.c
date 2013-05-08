@@ -8,5 +8,6 @@ int main() {
 	snake_start();
 	
 	display_finalize();
+	printf("Thank you for watching!\n");
 	return 0;
 }
