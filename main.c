@@ -9,5 +9,6 @@ int main() {
 	
 	display_finalize();
 	printf("Thank you for watching!\n");
+	pthread_exit(NULL);
 	return 0;
 }

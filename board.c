@@ -19,6 +19,7 @@ void board_init(Board *b) {
 	}
 
 	board_draw(b);
+	b->score[0] = b->score[1] = 0;
 }
 
 void board_draw(Board *b) {
@@ -37,4 +38,13 @@ void board_rand_bg(Board *b, int *x, int *y) {
 		*y = rand()%(HEIGHT-2)+1;
 
 	} while(b->field[*y][*x] != BG_COLOR);
+}
+
+void board_show_score(Board *b) {
+	char score[10];
+
+	sprintf(score, "Team 0: %d/%d ", b->score[0], b->best_score[0]);
+	IN_COLOR(mvprintw(0, 0, score), SNAKE_COLOR);
+	sprintf(score, "Team 1: %d/%d ", b->score[1], b->best_score[1]);
+	IN_COLOR(mvprintw(HEIGHT-1, 0, score), SNAKE_COLOR2);
 }

@@ -6,11 +6,17 @@ void snake_init(Snake *s, Board *b, int id) {
 	s->label[1] = 0;
 	board_rand_bg(b, s->x, s->y);
 	s->isize = SNAKE_START_SIZE;
-	s->size = 1;
+	s->size = 0;
 	s->steps = 0;
 	s->turn = RIGHT;
 	s->alive = ALIVE;
 	s->dir  = WEST;
+	s->team = (id >= SNAKE_COUNT/2);
+	s->color = (s->team ? SNAKE_COLOR : SNAKE_COLOR2);
+	b->field[s->y[0]][s->x[0]] = s->color;
+	s->grow = 0;
+
+	snake_change_size(s, b, 1);
 }
 
 int snake_crash(Snake *s, char c, pthread_t *kt) {
@@ -25,22 +31,14 @@ int snake_crash(Snake *s, char c, pthread_t *kt) {
 void snake_eat_and_grow(Snake *s, Board *b, Food *f) {
 	int x = s->x[0];
 	int y = s->y[0];
-	int tx = s->x[s->size-1];
-	int ty = s->y[s->size-1];
-
-	b->field[ty][tx] = BG_COLOR;
-	IN_COLOR(mvprintw(ty, tx, " "), BG_COLOR);
 
 	if (f->y == y && f->x == x) {
 		food_put(f, b);
-		if (s->size < SNAKE_SIZE) {
-			++s->size;
-		}
-		s->steps = 0;
+		s->grow = 1;
 	} else {
 		if (s->isize) {
 			--s->isize;			
-			++s->size;
+			s->grow = 1;
 		}
 	}
 }
@@ -49,6 +47,13 @@ void snake_move(Snake *s, Board *b, Food *f) {
 	int i;
 	int x = s->x[0];
 	int y = s->y[0];
+	int tx = s->x[s->size-1];
+	int ty = s->y[s->size-1];
+
+	if (s->grow) {
+		snake_change_size(s, b, 1);
+		s->grow = 0;
+	}
 
 	for (i=s->size-1; i>0; --i) {
 		s->x[i] = s->x[i-1];
@@ -71,8 +76,10 @@ void snake_move(Snake *s, Board *b, Food *f) {
 			break;
 	}
 	
-	b->field[y][x] = SNAKE_COLOR;
-	IN_COLOR(mvprintw(y, x, s->label), SNAKE_COLOR);
+	b->field[y][x] = s->color;
+	IN_COLOR(mvprintw(y, x, s->label), s->color);
+	b->field[ty][tx] = BG_COLOR;
+	IN_COLOR(mvprintw(ty, tx, " "), BG_COLOR);
 }
 
 
@@ -101,11 +108,9 @@ int snake_decide(Snake *s, Board *b, Food *f) {
 
 	if (++s->steps > (WIDTH+HEIGHT)*SNAKE_COUNT/2) {
 		s->turn = -s->turn;	
-		if (s->size > 1) {
-			--s->size;
+		if (snake_change_size(s, b, -1)) {
 			b->field[s->y[s->size]][s->x[s->size]] = BG_COLOR;
 			IN_COLOR(mvprintw(s->y[s->size], s->x[s->size], " "), BG_COLOR);
-			s->steps = 0;
 		}
 	}
 
@@ -134,6 +139,26 @@ int snake_decide(Snake *s, Board *b, Food *f) {
 	}
 	snake_reverse(s);
 	return s->alive = DEAD;
+}
+
+int snake_change_size(Snake *s, Board *b, int x) {
+	s->size += x;
+	b->score[s->team] += x;
+	s->steps = 0;
+
+	if (b->score[s->team] > b->best_score[s->team]) {
+		b->best_score[s->team] = b->score[s->team];
+	}
+	if (s->size < 1) {
+		s->size = 1;
+		return 0;
+	}
+	if (s->size == SNAKE_SIZE) {
+		s->size = SNAKE_SIZE-1;
+		return 0;
+	}
+
+	return 1;
 }
 
 void snake_destroy(Snake *s, Board *b) {
@@ -172,10 +197,11 @@ void *snake_thread(void *x) {
 	while(1) {
 		pthread_mutex_lock(&mutex);
 
+		snake_eat_and_grow(&s[id], &b, &f);		
 		if (snake_decide(&s[id], &b, &f)) {
-			snake_eat_and_grow(&s[id], &b, &f);		
 			snake_move(&s[id], &b, &f);
 		}
+		board_show_score(&b);
 		refresh();
 		pthread_mutex_unlock(&mutex);
 		
@@ -210,5 +236,7 @@ void snake_start() {
 		pthread_cancel(st[i]);
 		pthread_join(st[i], 0);
 	}
+
+	pthread_mutex_destroy(&mutex);
 
 }

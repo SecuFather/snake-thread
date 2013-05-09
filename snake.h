@@ -8,7 +8,7 @@
 #define SNAKE_SIZE			100
 #define SNAKE_COUNT			20
 #define SNAKE_START_SIZE	4
-#define SNAKE_DELAY			100000
+#define SNAKE_DELAY			10000
 
 #define NORTH		0
 #define EAST		1
@@ -24,7 +24,6 @@
 typedef struct {
 	int id;
 	char label[2];
-	int team;
 	int x[SNAKE_SIZE];
 	int y[SNAKE_SIZE];
 	int steps;
@@ -33,6 +32,9 @@ typedef struct {
 	int turn;
 	int alive;
 	char dir;
+	int color;
+	int team;
+	int grow;
 } Snake;
 
 Snake s[SNAKE_COUNT];
@@ -59,6 +61,9 @@ int snake_check_direction(Snake *s, Board *b, Food *f, char dir);
 //wylicza kierunek podążania węża, zwraca zero gdy wąż umiera
 int snake_decide(Snake *s, Board *b, Food *f);
 
+//zmienia rozmiar węża, zwraca 1 jeśli zmieniono rozmiar
+int snake_change_size(Snake *s, Board *b, int x);
+
 //niszczy węża
 void snake_destroy(Snake *s, Board *b);
 
@@ -70,6 +75,7 @@ void *snake_thread(void *id);
 
 //startuje węża
 void snake_start();
+
 
 
 #endif
