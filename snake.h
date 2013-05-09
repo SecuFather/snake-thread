@@ -3,7 +3,7 @@
 
 #include "global.h"
 #include "food.h"
-#include "display.h"
+
 
 #define SNAKE_SIZE			100
 #define SNAKE_COUNT			20
@@ -40,7 +40,6 @@ typedef struct {
 Snake s[SNAKE_COUNT];
 Food f;
 Board b;
-pthread_mutex_t mutex;
 int finish;
 
 //inicjuje węża

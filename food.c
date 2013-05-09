@@ -13,10 +13,11 @@ void food_put(Food *f, Board *b) {
 	int x, y;
 
 	board_rand_bg(b, &x, &y);
-
 	f->x = x;
 	f->y = y;
-	b->field[y][x] = FOOD_COLOR;
+	board_set_field(b, x, y, FOOD_COLOR);
 
+	pthread_mutex_lock(&board_mutex);
 	food_draw(f);
+	pthread_mutex_unlock(&board_mutex);
 }
