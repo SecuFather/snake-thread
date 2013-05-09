@@ -18,6 +18,7 @@ int display_init() {
 	start_color();
 	display_color_init();
 	srand(time(NULL));
+	display_init_log();
 
 	return 0;
 }
@@ -35,4 +36,14 @@ void *display_getch(void *c) {
 
 void display_finalize() {
 	endwin();
+}
+
+void display_init_log() {
+	system("rm -f log.txt");
+}
+
+void display_add_log(const char *str) {
+	char cmd[100];
+	sprintf(cmd, "echo \"%s\" >> log.txt", str);
+	system(cmd);
 }

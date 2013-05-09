@@ -21,7 +21,9 @@ void snake_init(Snake *s, Board *b, int id) {
 
 int snake_crash(Snake *s, char c, pthread_t *kt) {
 	if (c == 'q' || c == 'Q') {
+		display_add_log("przerwanie programu przez użytkownika...");
 		pthread_join(*kt, 0);
+		finish = 1;
 		return 1;
 	}
 
@@ -106,7 +108,7 @@ int snake_decide(Snake *s, Board *b, Food *f) {
 	int best = 3;
 	int i;
 
-	if (++s->steps > (WIDTH+HEIGHT)*SNAKE_COUNT/2) {
+	if (++s->steps > (WIDTH+HEIGHT)*SNAKE_COUNT/4) {
 		s->turn = -s->turn;	
 		if (snake_change_size(s, b, -1)) {
 			b->field[s->y[s->size]][s->x[s->size]] = BG_COLOR;
@@ -194,7 +196,7 @@ void *snake_thread(void *x) {
 	snake_init(&s[id], &b, id);
 	pthread_mutex_unlock(&mutex);
 
-	while(1) {
+	while(!finish) {
 		pthread_mutex_lock(&mutex);
 
 		snake_eat_and_grow(&s[id], &b, &f);		
@@ -207,36 +209,42 @@ void *snake_thread(void *x) {
 		
 		usleep(SNAKE_DELAY);
 	}	
-	return 0;
+	pthread_exit(NULL);
 }
 
 
 void snake_start() {
 	char c = 0;
 	int i;
+	finish = 0;
 
 	pthread_t kt, st[SNAKE_COUNT];
 	
+	display_add_log("startowanie wątku klawiatury...");
 	pthread_create(&kt, NULL, display_getch, (void *) &c);	
+
+	display_add_log("inicjacja mutexu...");
 	pthread_mutex_init(&mutex, NULL);
 	
-	snake_current = 0;
+	display_add_log("inicjacja planszy i jedzenia...");
 	board_init(&b);
 	food_init(&f, &b);
 
+	display_add_log("startowanie węży...");
 	for (i=0; i<SNAKE_COUNT; ++i) {
 		pthread_create(&st[i], NULL, snake_thread, (void *) i);
 	}
 
+	display_add_log("wyświetlanie węży...");
 	while (!snake_crash(s, c, &kt)) {		
 		usleep(SNAKE_DELAY);
 	}
 
+	display_add_log("kończenie wątków węży...");
 	for (i=0; i<SNAKE_COUNT; ++i) {
-		pthread_cancel(st[i]);
-		pthread_join(st[i], 0);
+		pthread_join(st[i], NULL);
 	}
 
+	display_add_log("niszczenie mutexu...");
 	pthread_mutex_destroy(&mutex);
-
 }

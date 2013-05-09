@@ -18,7 +18,7 @@
 //szerokość ekranu
 #define WIDTH			80
 //wysokość ekranu
-#define HEIGHT			20
+#define HEIGHT			24
 
 //makro pozwalające rysować w kolorze w danej funkcji
 #define IN_COLOR(function, color) attron(COLOR_PAIR(color)); function; attroff(COLOR_PAIR(color))

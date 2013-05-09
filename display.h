@@ -15,4 +15,10 @@ void *display_getch(void *c);
 //kończy wyświetlanie
 void display_finalize();
 
+//inicjuje loga
+void display_init_log();
+
+//dodaje do loga
+void display_add_log(const char *str);
+
 #endif
