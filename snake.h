@@ -40,14 +40,16 @@ typedef struct {
 Snake s[SNAKE_COUNT];
 Food f;
 Board b;
-int snake_finish, snake_pause;
+int snake_finish, snake_pause, snake_step;
 pthread_mutex_t snake_mutex[SNAKE_COUNT];
+pthread_mutex_t step_mutex;
+pthread_cond_t step_cond;
 
 //inicjuje węża
 void snake_init(Snake *s, Board *b, int id);
 
 //sprawdza czy nastąpiły warunki do zakończenia programu
-int snake_crash(Snake *s, char c, pthread_t *kt);
+int snake_crash(Snake *s, char *c, pthread_t *kt);
 
 //sprawdza czy wąż natrafił na pożywienie, jeśli tak, rośnie
 void snake_eat_and_grow(Snake *s, Board *b, Food *f);
@@ -87,6 +89,12 @@ void *snake_thread(void *id);
 
 //startuje węża
 void snake_start();
+
+//inicjuje mutexy
+void snake_init_mutex();
+
+//niszczy mutexy
+void snake_finalize_mutex();
 
 
 

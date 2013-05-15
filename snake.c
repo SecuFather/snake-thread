@@ -19,20 +19,34 @@ void snake_init(Snake *s, Board *b, int id) {
 	snake_change_size(s, b, 1);
 }
 
-int snake_crash(Snake *s, char c, pthread_t *kt) {
-	if (c == 'q' || c == 'Q') {
+int snake_crash(Snake *s, char *c, pthread_t *kt) {
+	if (*c == 'q' || *c == 'Q') {
 		display_add_log("przerwanie programu przez użytkownika...");
 		pthread_join(*kt, 0);
 		snake_finish = 1;
+
+		if (snake_pause) {
+			pthread_cond_broadcast(&step_cond);
+		}
 		return 1;
 	}
 
-	if (c == 'p' || c == 'P') {
-		snake_pause = 1;	
+	if (*c == 'p' || *c == 'P') {
+		snake_pause = 1;
 	}
 
-	if (c == 'r' || c == 'R') {
-		snake_pause = 0;
+	if (*c == 'r' || *c == 'R') {
+		if (snake_pause) {
+			snake_pause = 0;
+			pthread_cond_broadcast(&step_cond);
+		}
+	}
+
+	if (*c == 's' || *c == 'S') {
+		if (snake_pause) {		
+			*c = 0;	
+			pthread_cond_signal(&step_cond);
+		}
 	}
 
 	return 0;
@@ -107,7 +121,7 @@ int snake_check_head(Snake *snake, Board *b) {
 	int y = snake->y[0];	
 	int sx, sy;
 
-	for (i==ie; i<ie; ++i) {
+	for (i=ib; i<ie; ++i) {
 		if (i != snake->id) {
 			if (s[i].alive == ALIVE && pthread_mutex_trylock(&snake_mutex[i]) == 0) {
 				sx = s[i].x[0];
@@ -124,6 +138,7 @@ int snake_check_head(Snake *snake, Board *b) {
 			}
 		}
 	}
+	return 0;
 }
 
 int snake_check_tail(Snake *snake, Board *b, int x, int y) {
@@ -304,8 +319,9 @@ void *snake_thread(void *x) {
 	snake_init(&s[id], &b, id);
 
 	while(!snake_finish) {		
-		while (snake_pause && !snake_finish) {
-			usleep(SNAKE_DELAY);
+		if (snake_pause) {
+			pthread_cond_wait(&step_cond, &step_mutex);			
+			pthread_mutex_unlock(&step_mutex);
 		}
 
 		pthread_mutex_lock(&snake_mutex[id]);
@@ -338,18 +354,16 @@ void snake_start() {
 	int i;
 	snake_finish = 0;
 	snake_pause = 0;
+	snake_step = 0;
 
 	pthread_t kt, st[SNAKE_COUNT];
-
-	for (i=0; i<SNAKE_COUNT; ++i) {
-		pthread_mutex_init(&snake_mutex[i], NULL);
-	}
 	
 	display_add_log("startowanie wątku klawiatury...");
 	pthread_create(&kt, NULL, display_getch, (void *) &c);	
 	
 	display_add_log("inicjacja mutexow...");
 	board_init_mutex();
+	snake_init_mutex();
 
 	display_add_log("inicjacja planszy...");
 	board_init(&b);
@@ -363,7 +377,7 @@ void snake_start() {
 	}
 
 	display_add_log("wyświetlanie węży...");
-	while (!snake_crash(s, c, &kt)) {		
+	while (!snake_crash(s, &c, &kt)) {		
 		usleep(SNAKE_DELAY);
 	}
 
@@ -374,8 +388,25 @@ void snake_start() {
 
 	display_add_log("niszczenie mutexow...");
 	board_finalize_mutex();
+	snake_finalize_mutex();
+}
 
+void snake_init_mutex() {
+	int i;
+	
+	for (i=0; i<SNAKE_COUNT; ++i) {
+		pthread_mutex_init(&snake_mutex[i], NULL);
+	}
+	pthread_mutex_init(&step_mutex, NULL);
+	pthread_cond_init(&step_cond, NULL);
+}
+
+void snake_finalize_mutex() {
+	int i;
+	
 	for (i=0; i<SNAKE_COUNT; ++i) {
 		pthread_mutex_destroy(&snake_mutex[i]);
-	}	
+	}
+	pthread_mutex_destroy(&step_mutex);
+	pthread_cond_destroy(&step_cond);
 }
