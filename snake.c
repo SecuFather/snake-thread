@@ -99,6 +99,33 @@ void snake_move(Snake *s, Board *b, Food *f) {
 	pthread_mutex_unlock(&board_mutex);
 }
 
+int snake_check_head(Snake *snake, Board *b) {
+	int i;
+	int ib = (snake->team ? SNAKE_COUNT/2 : 0);
+	int ie = (snake->team ? SNAKE_COUNT : SNAKE_COUNT/2);	
+	int x = snake->x[0];
+	int y = snake->y[0];	
+	int sx, sy;
+
+	for (i==ie; i<ie; ++i) {
+		if (i != snake->id) {
+			if (s[i].alive == ALIVE && pthread_mutex_trylock(&snake_mutex[i]) == 0) {
+				sx = s[i].x[0];
+				sy = s[i].y[0];
+
+				if ((sx == x && sy == y-1) || (sx == x && sy == y+1) || 
+					(sx == x+1 && sy == y) || (sx == x-1 && sy == y)) {
+					snake->steps = 1;
+
+					pthread_mutex_unlock(&snake_mutex[i]);
+					return 1;
+				}
+				pthread_mutex_unlock(&snake_mutex[i]);
+			}
+		}
+	}
+}
+
 int snake_check_tail(Snake *snake, Board *b, int x, int y) {
 	int i;
 	int ib = (snake->team ? 0 : SNAKE_COUNT/2);
@@ -107,11 +134,12 @@ int snake_check_tail(Snake *snake, Board *b, int x, int y) {
 
 	for (i=ib; i<ie; ++i) {
 		if (i != snake->id) {
-			if (pthread_mutex_trylock(&snake_mutex[i]) == 0) {
+			if (s[i].alive == ALIVE && pthread_mutex_trylock(&snake_mutex[i]) == 0) {
 				last = s[i].size-1;
 
 				if (s[i].x[last] == x && s[i].y[last] == y) {
 					snake_change_size(&s[i], b, -1);
+					snake->grow = 1;
 					pthread_mutex_unlock(&snake_mutex[i]);
 					return 1;
 				}
@@ -193,7 +221,9 @@ int snake_decide(Snake *s, Board *b, Food *f) {
 	int x, y;
 	pthread_mutex_t *m = 0;
 
-	if (++s->steps > (WIDTH+HEIGHT)*SNAKE_COUNT) {
+	snake_check_head(s, b);
+
+	if (++s->steps > (WIDTH+HEIGHT)*SNAKE_COUNT/8) {
 		s->turn = -s->turn;	
 		if (snake_change_size(s, b, -1)) {
 			snake_cut_tail(s, b);

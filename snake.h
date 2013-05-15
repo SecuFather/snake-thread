@@ -55,6 +55,9 @@ void snake_eat_and_grow(Snake *s, Board *b, Food *f);
 //porusza wężem
 void snake_move(Snake *s, Board *b, Food *f);
 
+//szuka głowy kolegi z drużyny
+int snake_check_head(Snake *s, Board *b);
+
 //sprawdza czy natrafiono na ogon przeciwnika
 int snake_check_tail(Snake *s, Board *b, int x, int y);
 
