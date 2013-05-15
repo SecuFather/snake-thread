@@ -76,6 +76,7 @@ void board_init_mutex() {
 	}
 	pthread_mutex_init(&board_mutex, NULL);
 	pthread_mutex_init(&score_mutex, NULL);
+	pthread_mutex_init(&pause_mutex, NULL);
 }
 
 void board_finalize_mutex() {
@@ -88,6 +89,7 @@ void board_finalize_mutex() {
 	}
 	pthread_mutex_destroy(&board_mutex);
 	pthread_mutex_destroy(&score_mutex);
+	pthread_mutex_destroy(&pause_mutex);
 }
 
 void board_set_field(Board *b, int x, int y, int v) {

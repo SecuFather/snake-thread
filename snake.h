@@ -8,7 +8,7 @@
 #define SNAKE_SIZE			100
 #define SNAKE_COUNT			20
 #define SNAKE_START_SIZE	4
-#define SNAKE_DELAY			20000
+#define SNAKE_DELAY			40000
 
 #define NORTH		0
 #define EAST		1
@@ -40,7 +40,8 @@ typedef struct {
 Snake s[SNAKE_COUNT];
 Food f;
 Board b;
-int finish;
+int snake_finish, snake_pause;
+pthread_mutex_t snake_mutex[SNAKE_COUNT];
 
 //inicjuje węża
 void snake_init(Snake *s, Board *b, int id);
@@ -54,8 +55,17 @@ void snake_eat_and_grow(Snake *s, Board *b, Food *f);
 //porusza wężem
 void snake_move(Snake *s, Board *b, Food *f);
 
-//wylicza opłacalność danego ruchu od 0 - porażka do 2 - idealny
-int snake_check_direction(Snake *s, Board *b, Food *f, char dir);
+//sprawdza czy natrafiono na ogon przeciwnika
+int snake_check_tail(Snake *s, Board *b, int x, int y);
+
+//wylicza opłacalność dla określonego ruchu
+int snake_rate_direction(Snake *s, Board *b, Food *f, int x, int y, int fd, pthread_mutex_t **m, int *best, int *best_result, int id);
+
+//wylicza opłacalność danego ruchu od 0 - porażka do 4 - idealny
+int snake_check_direction(Snake *s, Board *b, Food *f, char dir, pthread_mutex_t **m, int *best, int *best_result, int id);
+
+//ucina ogon
+void snake_cut_tail(Snake *s, Board *b);
 
 //wylicza kierunek podążania węża, zwraca zero gdy wąż umiera
 int snake_decide(Snake *s, Board *b, Food *f);

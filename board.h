@@ -13,6 +13,7 @@ typedef struct {
 pthread_mutex_t field_mutex[HEIGHT][WIDTH];
 pthread_mutex_t board_mutex;
 pthread_mutex_t score_mutex;
+pthread_mutex_t pause_mutex;
 
 //inicjuje plansze
 void board_init(Board *b);
