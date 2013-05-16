@@ -8,7 +8,7 @@
 #define SNAKE_SIZE			100
 #define SNAKE_COUNT			20
 #define SNAKE_START_SIZE	4
-#define SNAKE_DELAY			40000
+#define SNAKE_DELAY			20000
 
 #define NORTH		0
 #define EAST		1

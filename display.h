@@ -3,6 +3,9 @@
 
 #include "global.h"
 
+pthread_mutex_t crash_mutex;
+pthread_cond_t crash_cond;
+
 //inicjowanie kolorów dla poszczególnych elementów
 void display_color_init();
 

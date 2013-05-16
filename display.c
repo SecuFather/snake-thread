@@ -29,6 +29,7 @@ void *display_getch(void *c) {
 	do {
 		read(0, &tmp, 1);
 		*((char*)c) = tmp;
+		pthread_cond_signal(&crash_cond);
 	} while (tmp != 'q' && tmp != 'Q');
 
 	pthread_exit(0);

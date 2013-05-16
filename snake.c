@@ -378,7 +378,8 @@ void snake_start() {
 
 	display_add_log("wyświetlanie węży...");
 	while (!snake_crash(s, &c, &kt)) {		
-		usleep(SNAKE_DELAY);
+		pthread_cond_wait(&crash_cond, &crash_mutex);
+		pthread_mutex_unlock(&crash_mutex);
 	}
 
 	display_add_log("kończenie wątków węży...");
@@ -398,7 +399,9 @@ void snake_init_mutex() {
 		pthread_mutex_init(&snake_mutex[i], NULL);
 	}
 	pthread_mutex_init(&step_mutex, NULL);
+	pthread_mutex_init(&crash_mutex, NULL);
 	pthread_cond_init(&step_cond, NULL);
+	pthread_cond_init(&crash_cond, NULL);
 }
 
 void snake_finalize_mutex() {
@@ -409,4 +412,6 @@ void snake_finalize_mutex() {
 	}
 	pthread_mutex_destroy(&step_mutex);
 	pthread_cond_destroy(&step_cond);
+	pthread_mutex_destroy(&crash_mutex);
+	pthread_cond_destroy(&crash_cond);
 }
