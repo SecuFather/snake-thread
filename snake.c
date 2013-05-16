@@ -316,7 +316,9 @@ void snake_reverse(Snake *s) {
 void *snake_thread(void *x) {
 	int id = (int)x;
 
+	pthread_mutex_lock(&snake_mutex[id]);
 	snake_init(&s[id], &b, id);
+	pthread_mutex_unlock(&snake_mutex[id]);
 
 	while(!snake_finish) {		
 		if (snake_pause) {
